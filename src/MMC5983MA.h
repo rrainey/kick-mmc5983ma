@@ -222,12 +222,14 @@ class MMC5983MA
   ///  it will use Bridge offsets, if those are available.  Failing both of those cases, 
   ///  it will simply scale the sample by the ideialized scale from the Memsic data sheet.
   /// @param sample the input sample 3-vector
-  /// @param value_G the 
+  /// @param value_G the converted values (units: Gauss)
   void sampleToG(uint32_t *sample, float *value_G);
 
   /// @brief Set Hard Iron ("Bridge") calibration values
   /// @param offsets a 3-vector containing the sampling origin-offsets to be used when in operation
   void setBridgeOffset(uint32_t *offsets);
+
+  void getBridgeOffset(uint32_t *offsets);
 
   /// @brief Set Soft Iron calibration values
   /// @param softIronOffset a 3-vector containing the offsets to be used when in operation

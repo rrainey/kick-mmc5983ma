@@ -61,7 +61,7 @@ void MMC5983MA::startSampleCollection(mmc5983ma_modr_t MODR,
 
     // enable continuous measurement mode (bit 3 == 1), set sample rate
     // enable automatic Set/Reset (bit 7 == 1), set set/reset rate
-    shadowControlRegisters[2] = 0x80 | (MSET << 4) | (1 << 3) | (uint8_t) MODR;
+    shadowControlRegisters[2] = CONTROL2_EN_PRD_SET | (MSET << 4) | CONTROL2_CM_ENABL | (uint8_t) MODR;
     writeByte(_deviceAddress, MMC5983MA_CONTROL_2, shadowControlRegisters[2]);
 }
 
@@ -160,6 +160,21 @@ void MMC5983MA::calibrateBridgeOffset(void) {
     _offsetValid = true;
 }
 
+/// @brief Set Hard Iron ("Bridge") calibration values
+/// @param offsets a 3-vector containing the sampling origin-offsets to be used when in operation
+void MMC5983MA::setBridgeOffset(uint32_t *offsets) {
+    for(int i=0; i<3; ++i) {
+        _offset[i] = offsets[i];
+    }
+    _offsetValid = true;
+}
+
+void MMC5983MA::getBridgeOffset(uint32_t *offsets) {
+    for(int i=0; i<3; ++i) {
+        offsets[i] = _offset[i];
+    }
+}
+
 void MMC5983MA::calibrateSoftIronSettings(float *dest1, float *dest2, void (*pCallback)(int)) {
 
     //int32_t mag_bias[3] = {0, 0, 0}, mag_scale[3] = {0, 0, 0};
@@ -221,7 +236,6 @@ void MMC5983MA::getSoftIronCalibration(uint32_t *softIronOffset, float *softIron
     }
 }
 
-
 void MMC5983MA::performSetOperation() {
     writeByte(_deviceAddress, MMC5983MA_CONTROL_0, CONTROL0_SET);
     // delay based on MEMSIC sample code
@@ -266,6 +280,11 @@ int MMC5983MA::readData(uint32_t *destination) {
     return res;
 }
 
+void MMC5983MA::sampleToG(uint32_t *sample, float *value_G) {
+    for(int i=0; i<3; +=i) {
+        value_G[i] = ((int32_t) sample[i] - (int32_t) _softOffset[i]) * _softScale[i];
+    }
+}
 
 void MMC5983MA::powerUp(uint8_t MODR) {
     shadowControlRegisters[2] =
@@ -274,6 +293,7 @@ void MMC5983MA::powerUp(uint8_t MODR) {
 }
 
 uint8_t MMC5983MA::readByte(uint8_t address, uint8_t subAddress) {
+
     uint8_t data = 0;
     _i2c->beginTransmission(address);
     _i2c->write(subAddress);
