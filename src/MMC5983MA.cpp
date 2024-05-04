@@ -61,7 +61,7 @@ void MMC5983MA::startSampleCollection(mmc5983ma_modr_t MODR,
 
     // enable continuous measurement mode (bit 3 == 1), set sample rate
     // enable automatic Set/Reset (bit 7 == 1), set set/reset rate
-    shadowControlRegisters[2] = CONTROL2_EN_PRD_SET | (MSET << 4) | CONTROL2_CM_ENABL | (uint8_t) MODR;
+    shadowControlRegisters[2] = CONTROL2_EN_PRD_SET | (MSET << 4) | CONTROL2_CM_ENABLE | (uint8_t) MODR;
     writeByte(_deviceAddress, MMC5983MA_CONTROL_2, shadowControlRegisters[2]);
 }
 
@@ -281,7 +281,7 @@ int MMC5983MA::readData(uint32_t *destination) {
 }
 
 void MMC5983MA::sampleToG(uint32_t *sample, float *value_G) {
-    for(int i=0; i<3; +=i) {
+    for(int i=0; i<3; ++i) {
         value_G[i] = ((int32_t) sample[i] - (int32_t) _softOffset[i]) * _softScale[i];
     }
 }
