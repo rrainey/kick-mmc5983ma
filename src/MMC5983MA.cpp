@@ -61,6 +61,11 @@ void MMC5983MA::startSampleCollection(mmc5983ma_modr_t MODR,
 
     // enable continuous measurement mode (bit 3 == 1), set sample rate
     // enable automatic Set/Reset (bit 7 == 1), set set/reset rate
+    if (MSET == MSET_DISABLED) {
+        shadowControlRegisters[2] = CONTROL2_CM_ENABLE | (uint8_t) MODR;
+    } else {
+        shadowControlRegisters[2] = CONTROL2_EN_PRD_SET | (MSET << 4) | CONTROL2_CM_ENABLE | (uint8_t) MODR;
+    }
     shadowControlRegisters[2] = CONTROL2_EN_PRD_SET | (MSET << 4) | CONTROL2_CM_ENABLE | (uint8_t) MODR;
     writeByte(_deviceAddress, MMC5983MA_CONTROL_2, shadowControlRegisters[2]);
 }

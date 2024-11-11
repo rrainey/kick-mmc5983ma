@@ -62,6 +62,7 @@ typedef enum {
 
 /// @brief Auto Set/Reset interval
 typedef enum {
+  MSET_DISABLED = 0xff, // Set/Reset disabled
   MSET_1    =  0x00, // Set/Reset each data measurement
   MSET_25   =  0x01, // each 25 data measurements
   MSET_75   =  0x02,
